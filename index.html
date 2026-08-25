@@ -448,8 +448,8 @@
                             <h4 class="font-bold text-sm text-blue-300"><i class="fa-solid fa-layer-group ml-1"></i> استيراد الأسئلة الجماعي الذكي (نظام الكتل)</h4>
                         </div>
                         <p class="text-[11px] text-blue-200 leading-relaxed mb-2">
-                            استخدم عناوين الكتل مثل: <code class="bg-slate-800 text-amber-300 px-1">### مقالي</code>، <code class="bg-slate-800 text-amber-300 px-1">### أكمل</code>، <code class="bg-slate-800 text-amber-300 px-1">### صوّب الخطأ</code>، <code class="bg-slate-800 text-amber-300 px-1">### اختيار من متعدد</code>.<br>
-                            كل الأسئلة التي تقع تحت العنوان ستأخذ نفس البادج والنوع تلقائياً حتى يظهر عنوان جديد.
+                            استخدم عناوين الكتل مثل: <code class="bg-slate-800 text-amber-300 px-1">### مقالي</code>، <code class="bg-slate-800 text-amber-300 px-1">### أكمل</code>، <code class="bg-slate-800 text-amber-300 px-1">### صوّب الخطأ</code>، <code class="bg-slate-800 text-amber-300 px-1">### اختيار من متعدد</code>، <code class="bg-slate-800 text-amber-300 px-1">### صح أو خطأ</code>.<br>
+                            كل الأسئلة التي تقع تحت العنوان ستأخذ نفس البادج والنوع بدقة تامة.
                         </p>
                         <textarea id="admin-bulk-input" rows="8" placeholder="### مقالي&#10;سؤال: وضح موقع مصر الجغرافي؟&#10;نموذج الإجابة: تتوسط قارات العالم القديم...&#10;&#10;### صوّب الخطأ&#10;سؤال: عاصمة مصر هي الإسكندرية.&#10;أ) الإسكندرية | ب) القاهرة | ج) أسوان | د) الأقصر&#10;الإجابة: القاهرة&#10;الشرح: لأنها عاصمة الدولة." class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs text-white font-mono"></textarea>
                         <button type="button" onclick="importBulkQuestions()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition cursor-pointer flex items-center gap-2">
@@ -1179,7 +1179,7 @@
             if (q.type === 'essay') {
                 return { label: '<i class="fa-solid fa-pen-nib ml-1"></i> مقالي', classes: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40' };
             } else if (q.type === 'true_false') {
-                return { label: '<i class="fa-solid fa-check-double ml-1"></i> صواب أو خطأ', classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' };
+                return { label: '<i class="fa-solid fa-check-double ml-1"></i> صح أو خطأ', classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' };
             } else if (q.type === 'correct_error') {
                 return { label: '<i class="fa-solid fa-pen-ruler ml-1"></i> صوّب الخطأ', classes: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' };
             } else if (q.type === 'complete') {
@@ -1733,7 +1733,7 @@
             document.getElementById('admin-q-points').value = '1';
         }
 
-        // --- FIXED BULK IMPORT LOGIC (BLOCK SYSTEM) ---
+        // --- FIXED BULK IMPORT LOGIC (BLOCK SYSTEM WITH EXACT TYPE MAPPING) ---
         async function importBulkQuestions() {
             const rawText = document.getElementById('admin-bulk-input').value;
             if (!rawText.trim()) {
@@ -1762,6 +1762,20 @@
                         options: [],
                         correctText: 'مقالي'
                     });
+                } else if (type === 'true_false') {
+                    let cText = cleanOption(qObj.correctAns);
+                    let isTrue = cText.includes('صح') || cText.includes('صواب') || cText.includes('نعم');
+                    qsArray.push({
+                        id: `q_bulk_tf_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+                        type: 'true_false',
+                        text: qObj.text,
+                        options: ['عبارة صحيحة', 'عبارة خاطئة'],
+                        correct: isTrue ? 0 : 1,
+                        correctText: isTrue ? 'عبارة صحيحة' : 'عبارة خاطئة',
+                        points: 1,
+                        image: qObj.image || '',
+                        explanation: qObj.explanation || 'لا يوجد شرح إضافي.'
+                    });
                 } else {
                     let cText = cleanOption(qObj.correctAns);
                     let cIdx = qObj.options.findIndex(o => normalizeMatch(o) === normalizeMatch(cText));
@@ -1783,14 +1797,14 @@
             lines.forEach(line => {
                 const lLower = line.toLowerCase();
                 
-                // تحديد نوع الكتلة بناءً على العناوين التي تبدأ بـ ### أو الكلمات الدالة
+                // قراءة نوع الكتلة بدقة تامة من عنوان ###
                 if (line.includes('###')) {
                     if (line.includes('مقالي')) currentSectionType = 'essay';
                     else if (line.includes('اختيار من متعدد')) currentSectionType = 'mcq';
                     else if (line.includes('أكمل')) currentSectionType = 'complete';
                     else if (line.includes('صوّب') || line.includes('صوب')) currentSectionType = 'correct_error';
-                    else if (line.includes('صواب') || line.includes('صح أو خطأ')) currentSectionType = 'true_false';
-                    return; // تجاوز سطر العنوان نفسه
+                    else if (line.includes('صواب أو خطأ') || line.includes('صح أو خطأ') || line.includes('صح وخطأ')) currentSectionType = 'true_false';
+                    return;
                 }
 
                 if (lLower.startsWith('سؤال') || /^\d+[\-\.\)]\s+/.test(line)) {
@@ -1805,6 +1819,16 @@
                             currentQ.image = line.replace(/^(الصورة|رابط)\s*[:\-]\s*/i, '').trim();
                         } else if (/^الدرجة\s*[:\-]/i.test(line)) {
                             currentQ.points = parseInt(line.replace(/^الدرجة\s*[:\-]\s*/i, '')) || 5;
+                        } else {
+                            currentQ.text += ' ' + line;
+                        }
+                    } else if (currentSectionType === 'true_false') {
+                        if (lLower.startsWith('الإجابة') || lLower.startsWith('الاجابة')) {
+                            currentQ.correctAns = line.replace(/^(الإجابة|الاجابة)\s*[:\-]?\s*/i, '').trim();
+                        } else if (lLower.startsWith('الشرح')) {
+                            currentQ.explanation = line.replace(/^الشرح\s*[:\-]?\s*/i, '').trim();
+                        } else if (lLower.startsWith('صورة')) {
+                            currentQ.image = line.replace(/^صورة\s*[:\-]?\s*/i, '').trim();
                         } else {
                             currentQ.text += ' ' + line;
                         }
