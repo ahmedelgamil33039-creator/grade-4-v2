@@ -445,20 +445,20 @@
                 <div id="admin-tab-bulk" class="admin-tab-content space-y-4 hidden text-right">
                     <div class="bg-slate-900/80 p-4 rounded-2xl border border-blue-500/30 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h4 class="font-bold text-sm text-blue-300"><i class="fa-solid fa-layer-group ml-1"></i> استيراد الأسئلة الجماعي الذكي (موضوعي ومقالي)</h4>
+                            <h4 class="font-bold text-sm text-blue-300"><i class="fa-solid fa-layer-group ml-1"></i> استيراد الأسئلة الجماعي الذكي (نظام الكتل)</h4>
                         </div>
                         <p class="text-[11px] text-blue-200 leading-relaxed mb-2">
-                            انسخ والصق أسئلتك هنا. الكود سيقرأ العناوين تلقائياً (مثل: ### اختيار من متعدد، ### مقالي) لتحديد نوع السؤال.<br> 
-                            لإضافة أسئلة مقالية استخدم <code class="bg-slate-800 text-amber-300 px-1">### مقالي</code> ثم اكتب السؤال وتحته <code class="bg-slate-800 text-amber-300 px-1">نموذج الإجابة: ...</code> و <code class="bg-slate-800 text-amber-300 px-1">الصورة: ...</code>.
+                            استخدم عناوين الكتل مثل: <code class="bg-slate-800 text-amber-300 px-1">### مقالي</code>، <code class="bg-slate-800 text-amber-300 px-1">### أكمل</code>، <code class="bg-slate-800 text-amber-300 px-1">### صوّب الخطأ</code>، <code class="bg-slate-800 text-amber-300 px-1">### اختيار من متعدد</code>.<br>
+                            كل الأسئلة التي تقع تحت العنوان ستأخذ نفس البادج والنوع تلقائياً حتى يظهر عنوان جديد.
                         </p>
-                        <textarea id="admin-bulk-input" rows="8" placeholder="### مقالي&#10;سؤال: وضح موقع مصر الجغرافي؟&#10;نموذج الإجابة: تتوسط قارات العالم القديم...&#10;&#10;### اختيار من متعدد&#10;سؤال: عاصمة مصر هي؟&#10;أ) الإسكندرية | ب) القاهرة | ج) أسوان | د) الأقصر&#10;الإجابة: القاهرة&#10;الشرح: لأنها عاصمة الدولة." class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs text-white font-mono"></textarea>
+                        <textarea id="admin-bulk-input" rows="8" placeholder="### مقالي&#10;سؤال: وضح موقع مصر الجغرافي؟&#10;نموذج الإجابة: تتوسط قارات العالم القديم...&#10;&#10;### صوّب الخطأ&#10;سؤال: عاصمة مصر هي الإسكندرية.&#10;أ) الإسكندرية | ب) القاهرة | ج) أسوان | د) الأقصر&#10;الإجابة: القاهرة&#10;الشرح: لأنها عاصمة الدولة." class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs text-white font-mono"></textarea>
                         <button type="button" onclick="importBulkQuestions()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition cursor-pointer flex items-center gap-2">
                             <i class="fa-solid fa-file-import"></i> استيراد وحفظ الأسئلة الآن
                         </button>
                     </div>
                 </div>
 
-                <!-- TAB 4: MANUAL GRADING FOR ESSAY (MODAL VIEW FOR SPACE SAVING) -->
+                <!-- TAB 4: MANUAL GRADING FOR ESSAY -->
                 <div id="admin-tab-grading" class="admin-tab-content space-y-4 hidden text-right">
                     <div class="flex justify-between items-center bg-slate-900 p-3 rounded-xl border border-blue-500/30">
                         <h4 class="font-bold text-sm text-blue-300"><i class="fa-solid fa-clipboard-check ml-1"></i> تصحيح إجابات الأسئلة المقالية للطلاب (<span id="pending-grading-count">0</span>)</h4>
@@ -611,7 +611,7 @@
         </div>
     </div>
 
-    <!-- MODAL 4: GRADE ESSAY MODAL (SPACE SAVING) -->
+    <!-- MODAL 4: GRADE ESSAY MODAL -->
     <div id="modal-grade-essay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
         <div class="glass-modal rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 border border-blue-500/40 shadow-2xl text-right">
             <div class="flex justify-between items-center border-b pb-3 border-blue-500/30">
@@ -1177,11 +1177,11 @@
 
         function getQuestionTypeBadge(q) {
             if (q.type === 'essay') {
-                return { label: '<i class="fa-solid fa-pen-nib ml-1"></i> سؤال مقالي', classes: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40' };
+                return { label: '<i class="fa-solid fa-pen-nib ml-1"></i> مقالي', classes: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40' };
             } else if (q.type === 'true_false') {
-                return { label: '<i class="fa-solid fa-check-double ml-1"></i> صح أو خطأ', classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' };
+                return { label: '<i class="fa-solid fa-check-double ml-1"></i> صواب أو خطأ', classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' };
             } else if (q.type === 'correct_error') {
-                return { label: '<i class="fa-solid fa-pen-ruler ml-1"></i> صوّب الخطأ', classes: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40' };
+                return { label: '<i class="fa-solid fa-pen-ruler ml-1"></i> صوّب الخطأ', classes: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' };
             } else if (q.type === 'complete') {
                 return { label: '<i class="fa-solid fa-pen-to-square ml-1"></i> أكمل العبارات الآتية', classes: 'bg-sky-500/20 text-sky-300 border border-sky-500/40' };
             }
@@ -1733,6 +1733,7 @@
             document.getElementById('admin-q-points').value = '1';
         }
 
+        // --- FIXED BULK IMPORT LOGIC (BLOCK SYSTEM) ---
         async function importBulkQuestions() {
             const rawText = document.getElementById('admin-bulk-input').value;
             if (!rawText.trim()) {
@@ -1769,9 +1770,9 @@
                         id: `q_bulk_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                         type: type,
                         text: qObj.text,
-                        options: qObj.options,
+                        options: qObj.options.length > 0 ? qObj.options : ['بديل 1', 'بديل 2', 'بديل 3', 'بديل 4'],
                         correct: cIdx,
-                        correctText: qObj.options[cIdx] || qObj.options[0],
+                        correctText: qObj.options[cIdx] || qObj.options[0] || 'بديل 1',
                         points: 1,
                         image: qObj.image || '',
                         explanation: qObj.explanation || 'لا يوجد شرح إضافي.'
@@ -1781,11 +1782,16 @@
 
             lines.forEach(line => {
                 const lLower = line.toLowerCase();
-                if (line.includes('مقالي')) currentSectionType = 'essay';
-                else if (line.includes('اختيار من متعدد')) currentSectionType = 'mcq';
-                else if (line.includes('أكمل')) currentSectionType = 'complete';
-                else if (line.includes('صوب')) currentSectionType = 'correct_error';
-                else if (line.includes('صواب')) currentSectionType = 'true_false';
+                
+                // تحديد نوع الكتلة بناءً على العناوين التي تبدأ بـ ### أو الكلمات الدالة
+                if (line.includes('###')) {
+                    if (line.includes('مقالي')) currentSectionType = 'essay';
+                    else if (line.includes('اختيار من متعدد')) currentSectionType = 'mcq';
+                    else if (line.includes('أكمل')) currentSectionType = 'complete';
+                    else if (line.includes('صوّب') || line.includes('صوب')) currentSectionType = 'correct_error';
+                    else if (line.includes('صواب') || line.includes('صح أو خطأ')) currentSectionType = 'true_false';
+                    return; // تجاوز سطر العنوان نفسه
+                }
 
                 if (lLower.startsWith('سؤال') || /^\d+[\-\.\)]\s+/.test(line)) {
                     if (currentQ) finalizeAndPush(currentQ, newQs, currentSectionType);
@@ -1836,7 +1842,6 @@
             }
         }
 
-        // --- MANUAL ESSAY GRADING IN ADMIN (MODAL VIEW) ---
         function renderAdminGrading() {
             const container = document.getElementById('admin-grading-tbody');
             if (!container) return;
